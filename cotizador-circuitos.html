@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cotizador de Circuitos | Viajes Casal</title>
+<style>
+:root{
+  --teal:#1F4E4A;
+  --turq:#4FA8A0;
+  --coral:#E2794F;
+  --sand:#F4E9D8;
+  --ink:#173733;
+  --line:#dfe6e2;
+  --bg:#eef2ef;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif}
+[hidden]{display:none !important}
+
+/* ---------- Top bar ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.topbar .logo{font-weight:800;color:var(--teal);margin-right:auto;font-size:15px;letter-spacing:.3px}
+.topbar .logo span{color:var(--coral)}
+button{background:var(--teal);color:#fff;border:0;border-radius:9px;padding:10px 16px;font-weight:700;cursor:pointer;font-size:13px}
+button.secondary{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+button.coral{background:var(--coral)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:hover:not(:disabled){filter:brightness(1.08)}
+
+.wrap{max-width:1080px;margin:0 auto;padding:24px 18px 60px}
+
+/* ---------- Form ---------- */
+.formCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px}
+.formCard h2{margin:0 0 4px;font-size:17px;color:var(--teal)}
+.formCard .hint{font-size:12px;color:#6b8580;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid.g2{grid-template-columns:repeat(2,1fr)}
+.grid.g4{grid-template-columns:repeat(4,1fr)}
+label{display:block;font-size:11.5px;font-weight:700;color:var(--teal);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-family:inherit;color:var(--ink);background:#fbfdfc}
+textarea{resize:vertical;min-height:52px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--turq);outline-offset:1px}
+.field{margin-bottom:12px}
+.durationHint{font-size:12px;color:var(--turq);font-weight:700;margin-top:-4px;margin-bottom:10px;min-height:16px}
+
+.svcRow{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:4px}
+.svcChk{display:flex;align-items:center;gap:7px;background:var(--sand);padding:8px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:700;color:var(--teal)}
+.svcChk input{width:auto;accent-color:var(--teal)}
+
+.fixedBlock{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px;background:#fbfdfc}
+.pTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.pTitle b{color:var(--teal);font-size:14px}
+.removeBtn{background:none;border:none;color:var(--coral);font-size:12px;font-weight:700;cursor:pointer;padding:4px 8px}
+.addRow{display:flex;justify-content:center;margin-top:14px}
+.addRow button{background:var(--sand);color:var(--teal);border:1.5px dashed var(--turq)}
+.addRowSmall{background:none;border:none;color:var(--turq);font-size:12px;font-weight:700;cursor:pointer;padding:6px 0}
+
+.mealChecks{display:flex;gap:16px;margin:8px 0 4px}
+.mealChecks label{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--teal);text-transform:none}
+.mealChecks input{width:auto}
+
+.listRow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.listRow input{flex:1}
+.listRow button{padding:6px 10px;background:none;color:var(--coral);border:1px solid var(--line);border-radius:8px;font-size:12px}
+
+.imgUploadRow{display:flex;align-items:center;gap:12px}
+.imgUploadRow .field{flex:1;margin-bottom:0}
+.imgPreview{width:56px;height:56px;border-radius:12px;background:var(--sand) center/cover;border:1px solid var(--line);flex-shrink:0}
+
+.priceInputTable{width:100%;border-collapse:collapse;margin-top:8px}
+.priceInputTable th,.priceInputTable td{padding:6px;border:1px solid var(--line);font-size:12px;text-align:center}
+.priceInputTable th{background:var(--sand);color:var(--teal);font-weight:800}
+.priceInputTable td:first-child,.priceInputTable th:first-child{text-align:left;min-width:140px}
+.priceInputTable input{padding:6px 8px;font-size:12.5px}
+
+.generateRow{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+.warn{background:#fff4ee;border:1px solid var(--coral);color:#8b3f1a;padding:10px 14px;border-radius:10px;font-size:12.5px;margin-bottom:14px}
+
+/* ---------- Preview toolbar ---------- */
+.previewToolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+
+/* ---------- Sheet (matches validated design) ---------- */
+.sheet{width:100%;max-width:1000px;margin:0 auto 26px;background:#fff;box-shadow:0 4px 22px #0001;overflow:hidden;border-radius:6px}
+.hero{min-height:340px;position:relative;color:#fff;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(100deg,#1F4E4Ae6,#4FA8A0cc),var(--heroimg,linear-gradient(135deg,#1F4E4A,#4FA8A0)) center/cover;padding:30px 44px 26px}
+.heroTop{display:flex;align-items:center;justify-content:space-between}
+.brandmark{font-family:Georgia,serif;font-size:15px;letter-spacing:.4px;opacity:.95}
+.brandmark .wave{color:var(--sand)}
+.hero .greeting{font-size:14px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;opacity:.95;margin-bottom:10px}
+.hero h1{font:42px/1.08 Georgia,serif;margin:0 0 12px;max-width:640px}
+.hero .partnerMsg{font-size:15px;line-height:1.5;margin:0 0 6px;opacity:.97;max-width:560px}
+.routeStrip{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;opacity:.95;margin-top:6px;flex-wrap:wrap}
+.routeStrip .dot{opacity:.6}
+.heroBottom{display:flex;justify-content:flex-end;margin-top:22px}
+.quotebox{background:#f7fbfaf2;color:var(--teal);border-radius:18px;padding:14px 22px;text-align:center;min-width:220px}
+.quotebox small{font-weight:800;letter-spacing:.5px;font-size:11px}
+.quotebox strong{display:block;font-size:20px;margin:4px 0}
+.quotebox span{font-size:11.5px}
+
+.content{padding:0 36px 30px}
+.card{border:1px solid var(--line);border-radius:18px;padding:22px;margin:14px 0;background:#fff}
+.cardtitle{font-size:16px;font-weight:800;color:var(--turq);margin-bottom:16px}
+.iconLabel{display:inline-flex;align-items:center;gap:7px}
+.iconLabel svg{width:18px;height:18px;color:var(--turq);flex-shrink:0}
+
+.trip{margin-top:-40px;position:relative}
+.tripgrid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1.1fr;gap:16px}
+.lbl{font-size:11px;font-weight:800;color:var(--teal);text-transform:uppercase}
+.val{font-size:13.5px;margin-top:4px;line-height:1.4}
+.support{border-left:1px solid var(--line);padding-left:18px}
+.support b{color:var(--turq);font-size:11px}
+.wabtn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:#25D366;color:#fff;padding:7px 12px;border-radius:16px;font-size:12px;font-weight:700;text-decoration:none}
+.linkbtn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;margin-left:6px;background:var(--teal);color:#fff;padding:7px 12px;border-radius:16px;font-size:12px;font-weight:700;text-decoration:none}
+.linkbtn svg{width:13px;height:13px}
+
+.factsRow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.factBox{background:var(--sand);border-radius:14px;padding:14px;text-align:center}
+.factBox .ico{width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;margin:0 auto 8px;color:var(--teal)}
+.factBox .ico svg{width:22px;height:22px}
+.factBox b{display:block;font-size:13px;color:var(--teal)}
+.factBox span{font-size:11px;color:#6b8580}
+
+.services{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:10px}
+.ico{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;margin:auto;background:var(--sand);color:var(--teal)}
+.ico svg{width:24px;height:24px}
+.services b{display:block;font-size:10.5px;margin-top:8px}
+
+.timeline{position:relative;padding-left:6px}
+.dayItem{position:relative;padding:0 0 26px 38px;border-left:2px solid var(--sand)}
+.dayItem:last-child{border-left:2px solid transparent;padding-bottom:0}
+.dayItem .dayNum{position:absolute;left:-19px;top:0;width:38px;height:38px;border-radius:50%;background:var(--turq);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;border:4px solid #fff}
+.dayItem h4{margin:0 0 4px;color:var(--teal);font-size:15px}
+.dayItem p{margin:4px 0;font-size:13px;line-height:1.5;color:var(--ink)}
+.mealTags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mealTag{background:var(--sand);color:var(--teal);font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:12px}
+
+.hotelCats{display:grid;gap:14px}
+.hotelCat{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fbfdfc}
+.hotelCat .stars{color:var(--coral);letter-spacing:2px;font-size:13px;margin-bottom:6px}
+.hotelCat h4{margin:0 0 10px;color:var(--teal);font-size:14px}
+.hotelCat ul{margin:0;padding:0;list-style:none}
+.hotelCat li{font-size:12.5px;padding:6px 0;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;gap:8px}
+.hotelCat li:last-child{border-bottom:0}
+.hotelCat li span:first-child{color:#6b8580}
+.hotelCat li span:last-child{font-weight:700;color:var(--teal);text-align:right}
+
+.priceTable{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+.priceTable th{background:var(--teal);color:#fff;padding:12px 10px;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px}
+.priceTable th:first-child{border-radius:12px 0 0 0;text-align:left}
+.priceTable th:last-child{border-radius:0 12px 0 0}
+.priceTable td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:center}
+.priceTable td:first-child{text-align:left;font-weight:700;color:var(--teal)}
+.priceTable tr:nth-child(even) td{background:#f8fbfa}
+.priceTable td.highlight{background:var(--sand);font-weight:800;color:var(--coral)}
+.priceTable th.highlight{background:var(--coral)}
+.priceNote{font-size:11.5px;color:#6b8580;margin-top:10px}
+
+.incGrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.incCol h4{margin:0 0 12px;font-size:13px;color:var(--teal)}
+.incCol ul{list-style:none;margin:0;padding:0}
+.incCol li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.5;padding:5px 0}
+.incCol svg{width:16px;height:16px;flex-shrink:0;margin-top:2px}
+.incYes svg{color:var(--turq)}
+.incNo svg{color:var(--coral)}
+
+.price{background:linear-gradient(120deg,var(--sand),#fffaf1);border:1px solid #ead9bd;border-radius:20px;padding:26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+.price h2{margin:0;color:#8b5d34;font-size:15px}
+.total{font-size:34px;font-weight:800;color:var(--teal);margin:6px 0}
+.per{font-size:13px;color:#6b5a3f}
+.cta{display:inline-flex;align-items:center;gap:6px;background:var(--coral);color:#fff;padding:10px 18px;border-radius:18px;font-weight:800;font-size:13px;text-decoration:none;border:0;cursor:pointer}
+
+.legal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.legal>div{padding:15px;border-radius:14px;background:var(--sand);font-size:11.5px;line-height:1.5;color:var(--teal)}
+
+.tagline{text-align:center;font-family:Georgia,serif;font-style:italic;color:var(--teal);font-size:14px;padding:14px 0 4px}
+
+.footer{background:linear-gradient(100deg,var(--teal),var(--turq));color:#fff;padding:22px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer h2{font:italic 20px Georgia,serif;margin:0 0 4px}
+.footer small{opacity:.9}
+.socialIcons{display:flex;gap:8px;margin-top:8px}
+.socialIcons a{width:32px;height:32px;border-radius:50%;background:#ffffff2b;display:grid;place-items:center;color:#fff}
+.socialIcons a svg{width:16px;height:16px}
+.reviews{text-align:right}
+.reviews a{color:#fff;text-decoration:none}
+.gold{color:#f5d98b}
+
+@media(max-width:900px){
+  .grid,.grid.g2,.grid.g4{grid-template-columns:1fr 1fr}
+  .tripgrid{grid-template-columns:1fr 1fr}
+  .factsRow{grid-template-columns:1fr 1fr}
+  .services{grid-template-columns:repeat(3,1fr)}
+  .incGrid,.legal{grid-template-columns:1fr 1fr}
+  .hero{padding:24px 22px}
+  .hero h1{font-size:30px}
+  .content{padding:0 20px 24px}
+  .price{flex-direction:column;align-items:flex-start}
+}
+@media print{
+  body{background:#fff}
+  .topbar,.previewToolbar{display:none !important}
+  .wrap{padding:0;max-width:none}
+  .sheet{box-shadow:none;margin:0;border-radius:0}
+  @page{size:A4;margin:0}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">VIAJES CASAL <span>≋</span> Circuitos</div>
+  <button class="secondary" id="btnForm" onclick="showView('form')">Formulario</button>
+  <button class="secondary" id="btnPreview" onclick="showView('preview')" disabled>Vista previa</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ===================== FORM VIEW ===================== -->
+  <section id="formView">
+
+    <div class="formCard">
+      <h2>Datos generales</h2>
+      <div class="grid g4">
+        <div class="field"><label>Folio</label><input id="g_folio" value="COT-CIRC-2026-00001"></div>
+        <div class="field"><label>Nombre del cliente</label><input id="g_cliente" placeholder="Joel Castro"></div>
+        <div class="field"><label>WhatsApp del cliente (opcional)</label><input id="g_clienteTel" placeholder="52155..."></div>
+        <div class="field"><label>Vigencia de la cotización</label><input id="g_vigencia" type="date"></div>
+      </div>
+      <div class="grid g4">
+        <div class="field"><label>Travel Partner</label>
+          <select id="g_partner"><option>Paulina Salazar</option><option>Eduardo</option></select>
+        </div>
+        <div class="field"><label>WhatsApp del Travel Partner</label><input id="g_partnerTel" placeholder="52998..."></div>
+        <div class="field"><label>Nombre del circuito</label><input id="g_circuito" placeholder="Ruta Maya Clásica"></div>
+        <div class="field"><label>Pasajeros</label><input id="g_pax" placeholder="2 adultos"></div>
+      </div>
+      <div class="grid g4">
+        <div class="field"><label>Fecha de salida</label><input id="g_fechaSalida" type="date" oninput="updateDurationHint()"></div>
+        <div class="field"><label>Tipo de traslado</label><input id="g_tipoTraslado" placeholder="Terrestre en van"></div>
+        <div class="field"><label>Idioma del guía</label><input id="g_idiomaGuia" placeholder="Español"></div>
+        <div class="field"><label>Link para ver la cotización en línea (opcional)</label><input id="g_linkOnline" placeholder="https://viajescasal.com/circuito/..."></div>
+      </div>
+      <div class="durationHint" id="durationHint"></div>
+      <div class="field">
+        <label>Imagen de portada (opcional)</label>
+        <div class="imgUploadRow">
+          <input type="file" accept="image/*" id="g_heroImgFile" onchange="handleImageUpload(event,'hero_global')">
+          <div class="imgPreview" id="preview_hero_global"></div>
+        </div>
+        <div class="hint" style="margin-top:6px">Si no subes nada, se usa el fondo con los colores de la marca.</div>
+      </div>
+    </div>
+
+    <div class="formCard">
+      <h2>Ruta / Ciudades</h2>
+      <div class="hint">El orden en que las agregues es el orden en que aparecen en la portada.</div>
+      <div id="rutaContainer"></div>
+      <div class="addRow"><button id="addCiudadBtn" onclick="addCiudad()">+ Agregar ciudad</button></div>
+    </div>
+
+    <div class="formCard">
+      <h2>Servicios incluidos en el circuito</h2>
+      <div class="svcRow" id="svcRow"></div>
+    </div>
+
+    <div class="formCard">
+      <h2>Itinerario día por día</h2>
+      <div id="daysContainer"></div>
+      <div class="addRow"><button id="addDayBtn" onclick="addDay()">+ Agregar día</button></div>
+    </div>
+
+    <div class="formCard">
+      <h2>Hospedaje por categoría</h2>
+      <div class="hint">Cada categoría genera automáticamente una columna en la tabla de tarifas.</div>
+      <div id="categoriesContainer"></div>
+      <div class="addRow"><button id="addCategoryBtn" onclick="addCategory()">+ Agregar categoría de hotel</button></div>
+    </div>
+
+    <div class="formCard">
+      <h2>Ocupaciones</h2>
+      <div class="hint">Define las columnas de la tabla de tarifas (sencilla, doble, triple...).</div>
+      <div id="occupanciesContainer"></div>
+      <div class="addRow"><button id="addOccBtn" onclick="addOccupancy()">+ Agregar ocupación</button></div>
+    </div>
+
+    <div class="formCard">
+      <h2>Tarifas por persona (MXN)</h2>
+      <div id="priceInputsContainer"></div>
+    </div>
+
+    <div class="formCard">
+      <h2>¿Qué incluye y qué no?</h2>
+      <div class="grid g2">
+        <div>
+          <label>Incluye</label>
+          <div id="incluyeContainer"></div>
+          <div class="addRowSmall" style="cursor:pointer" onclick="addIncluye()">+ Agregar línea</div>
+        </div>
+        <div>
+          <label>No incluye</label>
+          <div id="excluyeContainer"></div>
+          <div class="addRowSmall" style="cursor:pointer" onclick="addExcluye()">+ Agregar línea</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="generateRow">
+      <button class="coral" onclick="generate()">Generar cotización de circuito →</button>
+    </div>
+  </section>
+
+  <!-- ===================== PREVIEW VIEW ===================== -->
+  <section id="previewView" hidden>
+    <div class="previewToolbar">
+      <button class="secondary" onclick="showView('form')">← Volver a editar</button>
+      <button onclick="window.print()">Imprimir / Guardar PDF</button>
+      <button class="coral" onclick="copyMessage()">Copiar mensaje de WhatsApp</button>
+    </div>
+    <div id="sheetContainer"></div>
+    <div class="formCard" style="max-width:640px;margin:0 auto 30px">
+      <h2 style="font-size:14px">Mensaje para copiar y pegar</h2>
+      <textarea id="msgText" readonly style="min-height:220px;font-size:13px;line-height:1.5"></textarea>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---------- Icon set (shared visual language with the other quote format) ---------- */
+const ICONS = {
+  vuelo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>`,
+  hotel: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="7" rx="1.5"/><path d="M3 11V8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3"/><path d="M13 11V9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 18v2"/><path d="M21 18v2"/></svg>`,
+  traslados: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13l1.5-4.5A2 2 0 0 1 6.4 7h11.2a2 2 0 0 1 1.9 1.5L21 13"/><rect x="2" y="13" width="20" height="5" rx="1.5"/><circle cx="7" cy="18.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="17" cy="18.5" r="1.4" fill="currentColor" stroke="none"/></svg>`,
+  tours: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 5-1 1-2-5 2-1z" fill="currentColor" stroke="none"/></svg>`,
+  seguro: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>`,
+  guia: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>`,
+  alimentos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v7M11 3v7M7 10a4 4 0 0 0 4 0M9 10v11"/><path d="M17 3c-1.5 1.5-1.5 5 0 6.5V21"/></svg>`,
+  tarjeta: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>`,
+  transferencia: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3"/><path d="M20 16H7l3 3"/></svg>`,
+  facilidades: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>`,
+  web: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>`,
+  facebook: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M14 9h-2a2 2 0 0 0-2 2v2H8v3h2v6h3v-6h2.2l.3-3H13v-1.5c0-.5.2-1 1-1h1.5V8.2A20 20 0 0 0 14 8Z"/></svg>`,
+  tiktok: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v11"/><circle cx="7" cy="18" r="2" fill="currentColor" stroke="none"/><circle cx="17" cy="16" r="2" fill="currentColor" stroke="none"/></svg>`,
+  youtube: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M10 9.5l5 2.5-5 2.5v-5z" fill="currentColor" stroke="none"/></svg>`,
+  instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>`,
+  link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 7l1-1a3.5 3.5 0 0 1 5 5l-1 1"/><path d="M13 17l-1 1a3.5 3.5 0 0 1-5-5l1-1"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg>`,
+  cross: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>`,
+  calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>`,
+  pin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>`
+};
+const SOCIAL_LINKS = {
+  web: 'https://viajescasal.com',
+  facebook: 'https://www.facebook.com/share/1GjFtGYqvk/',
+  instagram: 'https://www.instagram.com/viaja.pau?igsh=MW9kd3FxN2hhM2h6dA==',
+  tiktok: 'https://www.tiktok.com/@viajes_bumeran_casal',
+  youtube: 'https://www.youtube.com/@inspirateaviajar',
+  gmaps: 'https://share.google/4S0ONfhO3Wo8Xy5OI'
+};
+const SERVICES = [
+  {key:'vuelo',     label:'Vuelo'},
+  {key:'traslados', label:'Traslados'},
+  {key:'hotel',     label:'Hospedaje'},
+  {key:'tours',     label:'Tours y entradas'},
+  {key:'alimentos', label:'Alimentos'},
+  {key:'guia',      label:'Guía'},
+  {key:'seguro',    label:'Seguro'}
+];
+
+/* ---------- State (single source of truth so add/remove never loses data) ---------- */
+let state = { ruta:[], days:[], categories:[], occupancies:[], incluye:[], excluye:[] };
+let counters = { ruta:0, day:0, cat:0, hotel:0, occ:0, inc:0, exc:0 };
+let imageStore = {};
+
+function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function val(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function money(n){
+  const num = parseFloat((n||'0').toString().replace(/[^0-9.]/g,''));
+  if(isNaN(num)||num<=0) return n||'—';
+  return '$' + num.toLocaleString('es-MX',{maximumFractionDigits:0}) + ' MXN';
+}
+function firstName(fullName){ return fullName ? fullName.trim().split(/\s+/)[0] : ''; }
+function handleImageUpload(event, key){
+  const file = event.target.files && event.target.files[0];
+  const preview = document.getElementById('preview_'+key);
+  if(!file){ delete imageStore[key]; if(preview) preview.style.backgroundImage=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => { imageStore[key]=e.target.result; if(preview) preview.style.backgroundImage=`url('${e.target.result}')`; };
+  reader.readAsDataURL(file);
+}
+
+/* ---------- Dates ---------- */
+const MESES_FULL=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESES_SHORT=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function parseISO(iso){ if(!iso) return null; const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d); }
+function formatSingleDate(iso){ const d=parseISO(iso); if(!d) return ''; return `${d.getDate()} ${MESES_SHORT[d.getMonth()]} ${d.getFullYear()}`; }
+function updateDurationHint(){
+  const dias = state.days.length || 1;
+  const noches = Math.max(dias-1,0);
+  const salida = val('g_fechaSalida');
+  let txt = `${dias} día${dias>1?'s':''} / ${noches} noche${noches!==1?'s':''}`;
+  if(salida){
+    const s = parseISO(salida);
+    const e = new Date(s); e.setDate(e.getDate()+noches);
+    txt += ` · ${s.getDate()} ${MESES_SHORT[s.getMonth()]} – ${e.getDate()} ${MESES_SHORT[e.getMonth()]} ${e.getFullYear()}`;
+  }
+  document.getElementById('durationHint').textContent = '📅 ' + txt;
+}
+
+/* ---------- Services checklist ---------- */
+function renderServicesRow(){
+  document.getElementById('svcRow').innerHTML = SERVICES.map(s=>`
+    <label class="svcChk"><input type="checkbox" id="g_srv_${s.key}" checked> ${s.label}</label>`).join('');
+}
+function checkedServices(){ return SERVICES.filter(s=>document.getElementById('g_srv_'+s.key).checked).map(s=>s.key); }
+
+/* ---------- Ruta / ciudades ---------- */
+function addCiudad(){
+  if(state.ruta.length>=8) return;
+  counters.ruta++;
+  state.ruta.push({id:counters.ruta, nombre:''});
+  renderRuta();
+}
+function removeCiudad(id){ state.ruta = state.ruta.filter(r=>r.id!==id); renderRuta(); }
+function updateCiudad(id,value){ const r=state.ruta.find(x=>x.id===id); if(r) r.nombre=value; }
+function renderRuta(){
+  document.getElementById('rutaContainer').innerHTML = state.ruta.map(r=>`
+    <div class="listRow">
+      <input value="${esc(r.nombre)}" oninput="updateCiudad(${r.id},this.value)" placeholder="Ej. Cancún">
+      <button onclick="removeCiudad(${r.id})">✕</button>
+    </div>`).join('');
+  document.getElementById('addCiudadBtn').disabled = state.ruta.length>=8;
+}
+
+/* ---------- Itinerary days ---------- */
+function addDay(){
+  if(state.days.length>=12) return;
+  counters.day++;
+  state.days.push({id:counters.day, titulo:'', descripcion:'', desayuno:false, comida:false, cena:false});
+  renderDays();
+  updateDurationHint();
+}
+function removeDay(id){ state.days = state.days.filter(d=>d.id!==id); renderDays(); updateDurationHint(); }
+function updateDay(id, field, value){ const d=state.days.find(x=>x.id===id); if(d) d[field]=value; }
+function dayFormHTML(d, idx){
+  return `
+  <div class="fixedBlock" data-id="${d.id}">
+    <div class="pTitle"><b>Día ${idx+1}</b>
+      <button class="removeBtn" onclick="removeDay(${d.id})" style="display:${state.days.length>1?'inline-block':'none'}">Eliminar día</button>
+    </div>
+    <div class="field"><label>Título / ruta del día</label><input value="${esc(d.titulo)}" oninput="updateDay(${d.id},'titulo',this.value)" placeholder="Cancún — Llegada"></div>
+    <div class="field"><label>Descripción</label><textarea oninput="updateDay(${d.id},'descripcion',this.value)" placeholder="Recepción en el aeropuerto y traslado al hotel...">${esc(d.descripcion)}</textarea></div>
+    <div class="mealChecks">
+      <label><input type="checkbox" ${d.desayuno?'checked':''} onchange="updateDay(${d.id},'desayuno',this.checked)"> Desayuno</label>
+      <label><input type="checkbox" ${d.comida?'checked':''} onchange="updateDay(${d.id},'comida',this.checked)"> Comida</label>
+      <label><input type="checkbox" ${d.cena?'checked':''} onchange="updateDay(${d.id},'cena',this.checked)"> Cena</label>
+    </div>
+  </div>`;
+}
+function renderDays(){
+  document.getElementById('daysContainer').innerHTML = state.days.map((d,i)=>dayFormHTML(d,i)).join('');
+  document.getElementById('addDayBtn').disabled = state.days.length>=12;
+}
+
+/* ---------- Hotel categories (also drive the pricing table rows) ---------- */
+function addCategory(){
+  if(state.categories.length>=5) return;
+  counters.cat++;
+  counters.hotel++;
+  const precios = {}; state.occupancies.forEach(o=> precios[o.id]='');
+  state.categories.push({id:counters.cat, nombre:'', estrellas:'3', hoteles:[{id:counters.hotel, ciudad:'', hotel:''}], precios});
+  renderCategories();
+  renderPriceInputs();
+}
+function removeCategory(id){
+  state.categories = state.categories.filter(c=>c.id!==id);
+  renderCategories();
+  renderPriceInputs();
+}
+function updateCategory(id, field, value){
+  const c = state.categories.find(x=>x.id===id); if(!c) return;
+  c[field]=value;
+  if(field==='nombre'||field==='estrellas'){
+    const lbl = document.getElementById(`catLabel_${id}`);
+    if(lbl) lbl.textContent = `${c.nombre||'Categoría'} ${'★'.repeat(parseInt(c.estrellas)||3)}`;
+  }
+}
+function addHotelRow(catId){
+  const c = state.categories.find(x=>x.id===catId); if(!c) return;
+  if(c.hoteles.length>=8) return;
+  counters.hotel++;
+  c.hoteles.push({id:counters.hotel, ciudad:'', hotel:''});
+  renderCategories();
+}
+function removeHotelRow(catId, rowId){
+  const c = state.categories.find(x=>x.id===catId); if(!c) return;
+  c.hoteles = c.hoteles.filter(h=>h.id!==rowId);
+  renderCategories();
+}
+function updateHotelRow(catId, rowId, field, value){
+  const c = state.categories.find(x=>x.id===catId); if(!c) return;
+  const h = c.hoteles.find(x=>x.id===rowId); if(h) h[field]=value;
+}
+function categoryFormHTML(c, idx){
+  return `
+  <div class="fixedBlock" data-catid="${c.id}">
+    <div class="pTitle"><b>Categoría ${idx+1}</b>
+      <button class="removeBtn" onclick="removeCategory(${c.id})" style="display:${state.categories.length>1?'inline-block':'none'}">Eliminar categoría</button>
+    </div>
+    <div class="grid g2">
+      <div class="field"><label>Nombre de categoría</label><input value="${esc(c.nombre)}" oninput="updateCategory(${c.id},'nombre',this.value)" placeholder="Estándar"></div>
+      <div class="field"><label>Estrellas</label>
+        <select onchange="updateCategory(${c.id},'estrellas',this.value)">
+          ${[5,4,3,2].map(n=>`<option value="${n}" ${String(c.estrellas)===String(n)?'selected':''}>${n}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="hint" style="margin:4px 0 6px">Hoteles por ciudad para esta categoría:</div>
+    ${c.hoteles.map(h=>`
+      <div class="listRow">
+        <input value="${esc(h.ciudad)}" oninput="updateHotelRow(${c.id},${h.id},'ciudad',this.value)" placeholder="Ciudad (ej. Cancún)" style="max-width:220px">
+        <input value="${esc(h.hotel)}" oninput="updateHotelRow(${c.id},${h.id},'hotel',this.value)" placeholder="Nombre del hotel">
+        <button onclick="removeHotelRow(${c.id},${h.id})" style="display:${c.hoteles.length>1?'inline-block':'none'}">✕</button>
+      </div>`).join('')}
+    <div class="addRowSmall" style="cursor:pointer" onclick="addHotelRow(${c.id})">+ Agregar ciudad/hotel</div>
+  </div>`;
+}
+function renderCategories(){
+  document.getElementById('categoriesContainer').innerHTML = state.categories.map((c,i)=>categoryFormHTML(c,i)).join('');
+  document.getElementById('addCategoryBtn').disabled = state.categories.length>=5;
+}
+
+/* ---------- Occupancies (pricing table columns) ---------- */
+function addOccupancy(){
+  if(state.occupancies.length>=6) return;
+  counters.occ++;
+  const occ = {id:counters.occ, nombre:''};
+  state.occupancies.push(occ);
+  state.categories.forEach(c=> c.precios[occ.id]='');
+  renderOccupancies();
+  renderPriceInputs();
+}
+function removeOccupancy(id){
+  state.occupancies = state.occupancies.filter(o=>o.id!==id);
+  state.categories.forEach(c=> delete c.precios[id]);
+  renderOccupancies();
+  renderPriceInputs();
+}
+function updateOccupancy(id, value){
+  const o = state.occupancies.find(x=>x.id===id); if(!o) return;
+  o.nombre = value;
+  const th = document.getElementById(`occHead_${id}`);
+  if(th) th.textContent = value || 'Ocupación';
+}
+function renderOccupancies(){
+  document.getElementById('occupanciesContainer').innerHTML = state.occupancies.map(o=>`
+    <div class="listRow">
+      <input value="${esc(o.nombre)}" oninput="updateOccupancy(${o.id},this.value)" placeholder="Doble">
+      <button onclick="removeOccupancy(${o.id})" style="display:${state.occupancies.length>1?'inline-block':'none'}">✕</button>
+    </div>`).join('');
+  document.getElementById('addOccBtn').disabled = state.occupancies.length>=6;
+}
+
+/* ---------- Price inputs (rows = categories, cols = occupancies) ---------- */
+function updatePrice(catId, occId, value){
+  const c = state.categories.find(x=>x.id===catId); if(!c) return;
+  c.precios[occId] = value;
+}
+function renderPriceInputs(){
+  const container = document.getElementById('priceInputsContainer');
+  if(state.categories.length===0 || state.occupancies.length===0){
+    container.innerHTML = `<div class="hint">Agrega al menos una categoría de hotel y una ocupación para capturar tarifas.</div>`;
+    return;
+  }
+  let html = `<table class="priceInputTable"><thead><tr><th>Categoría</th>`;
+  state.occupancies.forEach(o=> html += `<th id="occHead_${o.id}">${esc(o.nombre)||'Ocupación'}</th>`);
+  html += `</tr></thead><tbody>`;
+  state.categories.forEach(c=>{
+    html += `<tr><td id="catLabel_${c.id}">${esc(c.nombre)||'Categoría'} ${'★'.repeat(parseInt(c.estrellas)||3)}</td>`;
+    state.occupancies.forEach(o=>{
+      const v = c.precios[o.id]||'';
+      html += `<td><input value="${esc(v)}" oninput="updatePrice(${c.id},${o.id},this.value)" placeholder="$0"></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+/* ---------- Incluye / No incluye ---------- */
+function addIncluye(){ if(state.incluye.length>=8) return; counters.inc++; state.incluye.push({id:counters.inc, texto:''}); renderIncluye(); }
+function removeIncluye(id){ state.incluye = state.incluye.filter(x=>x.id!==id); renderIncluye(); }
+function updateIncluye(id,value){ const i=state.incluye.find(x=>x.id===id); if(i) i.texto=value; }
+function renderIncluye(){
+  document.getElementById('incluyeContainer').innerHTML = state.incluye.map(i=>`
+    <div class="listRow"><input value="${esc(i.texto)}" oninput="updateIncluye(${i.id},this.value)" placeholder="Ej. Vuelo redondo México–Cancún"><button onclick="removeIncluye(${i.id})">✕</button></div>`).join('');
+}
+function addExcluye(){ if(state.excluye.length>=8) return; counters.exc++; state.excluye.push({id:counters.exc, texto:''}); renderExcluye(); }
+function removeExcluye(id){ state.excluye = state.excluye.filter(x=>x.id!==id); renderExcluye(); }
+function updateExcluye(id,value){ const i=state.excluye.find(x=>x.id===id); if(i) i.texto=value; }
+function renderExcluye(){
+  document.getElementById('excluyeContainer').innerHTML = state.excluye.map(i=>`
+    <div class="listRow"><input value="${esc(i.texto)}" oninput="updateExcluye(${i.id},this.value)" placeholder="Ej. Propinas y gastos personales"><button onclick="removeExcluye(${i.id})">✕</button></div>`).join('');
+}
+
+/* ---------- Compute "desde" (lowest price in the table) ---------- */
+function computeDesde(){
+  let min=null, minCat=null, minOcc=null;
+  state.categories.forEach(c=>{
+    state.occupancies.forEach(o=>{
+      const num = parseFloat((c.precios[o.id]||'').replace(/[^0-9.]/g,''));
+      if(!isNaN(num) && num>0 && (min===null || num<min)){ min=num; minCat=c; minOcc=o; }
+    });
+  });
+  return {min, minCat, minOcc};
+}
+
+/* ---------- Preview / sheet ---------- */
+function collectGlobal(){
+  const dias = state.days.length || 1;
+  const noches = Math.max(dias-1,0);
+  return {
+    folio: val('g_folio'),
+    cliente: val('g_cliente') || 'Nombre del cliente',
+    clienteTel: val('g_clienteTel'),
+    vigencia: val('g_vigencia'),
+    partner: val('g_partner'),
+    partnerTel: val('g_partnerTel'),
+    linkOnline: val('g_linkOnline'),
+    circuito: val('g_circuito') || 'Tu próximo circuito',
+    pax: val('g_pax'),
+    fechaSalida: val('g_fechaSalida'),
+    tipoTraslado: val('g_tipoTraslado'),
+    idiomaGuia: val('g_idiomaGuia'),
+    heroImgData: imageStore['hero_global']||'',
+    dias, noches,
+    services: Object.fromEntries(SERVICES.map(s=>[s.key, document.getElementById('g_srv_'+s.key).checked]))
+  };
+}
+
+function sheetHTML(g){
+  const heroStyle = g.heroImgData ? `style="--heroimg:url('${g.heroImgData}')"` : '';
+  const partnerDigits = g.partnerTel ? g.partnerTel.replace(/[^0-9]/g,'') : '';
+  const waLink = partnerDigits ? `https://wa.me/${partnerDigits}` : '#';
+  const vigenciaTxt = g.vigencia ? formatSingleDate(g.vigencia) : '—';
+  const salidaTxt = g.fechaSalida ? formatSingleDate(g.fechaSalida) : '—';
+  const clienteNombre = firstName(g.cliente) || g.cliente;
+  const rutaNombres = state.ruta.map(r=>r.nombre).filter(Boolean);
+  const desde = computeDesde();
+
+  const routeStrip = rutaNombres.length ? rutaNombres.map((n,i)=>`<span>${esc(n)}</span>${i<rutaNombres.length-1?'<span class="dot">→</span>':''}`).join('') : '';
+
+  const activeServices = SERVICES.filter(s=>g.services[s.key]);
+  const svcIcons = activeServices.map(s=>`<div><span class="ico">${ICONS[s.key]}</span><b>${s.label}</b></div>`).join('');
+
+  const daysHTML = state.days.map((d,i)=>{
+    const meals = [];
+    if(d.desayuno) meals.push('Desayuno incluido');
+    if(d.comida) meals.push('Comida incluida');
+    if(d.cena) meals.push('Cena incluida');
+    if(!meals.length) meals.push('Sin alimentos incluidos');
+    return `
+    <div class="dayItem">
+      <div class="dayNum">${i+1}</div>
+      <h4>${esc(d.titulo)||'Día '+(i+1)}</h4>
+      <p>${esc(d.descripcion)}</p>
+      <div class="mealTags">${meals.map(m=>`<span class="mealTag">${m}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+
+  const hotelCatsHTML = state.categories.map(c=>{
+    const rows = c.hoteles.filter(h=>h.ciudad||h.hotel).map(h=>`<li><span>${esc(h.ciudad)}</span><span>${esc(h.hotel)}</span></li>`).join('');
+    return `
+    <div class="hotelCat">
+      <div class="stars">${'★'.repeat(parseInt(c.estrellas)||3)}</div>
+      <h4>${esc(c.nombre)||'Categoría'}</h4>
+      <ul>${rows}</ul>
+    </div>`;
+  }).join('');
+  const hotelCatsCols = Math.min(Math.max(state.categories.length,1),3);
+
+  let priceTableHTML = '';
+  if(state.categories.length && state.occupancies.length){
+    const highlightOccId = (state.occupancies.find(o=>(o.nombre||'').toLowerCase()==='doble')||{}).id;
+    priceTableHTML = `
+      <table class="priceTable">
+        <thead><tr><th>Categoría</th>
+          ${state.occupancies.map(o=>`<th${o.id===highlightOccId?' class="highlight"':''}>${esc(o.nombre)||'Ocupación'}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${state.categories.map(c=>`
+            <tr><td>${esc(c.nombre)||'Categoría'} ${'★'.repeat(parseInt(c.estrellas)||3)}</td>
+              ${state.occupancies.map(o=>`<td${o.id===highlightOccId?' class="highlight"':''}>${money(c.precios[o.id])}</td>`).join('')}
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  const incluyeItems = state.incluye.filter(i=>i.texto);
+  const excluyeItems = state.excluye.filter(i=>i.texto);
+
+  return `
+  <div class="sheet">
+    <section class="hero" ${heroStyle}>
+      <div class="heroTop"><div class="brandmark">VIAJES CASAL <span class="wave">≋</span></div></div>
+      <div>
+        <div class="greeting">Hola, ${esc(clienteNombre)} — preparamos este circuito pensando en ti</div>
+        <h1>${esc(g.circuito)}</h1>
+        <p class="partnerMsg">Tu Travel Partner, <b>${esc(g.partner)}</b>, armó este circuito a tu medida — con cada traslado, hotel y visita ya coordinados para que solo te enfoques en disfrutarlo.</p>
+        ${routeStrip?`<div class="routeStrip">${routeStrip}</div>`:''}
+      </div>
+      <div class="heroBottom">
+        <div class="quotebox">
+          <small>COTIZACIÓN DE CIRCUITO</small>
+          <strong>${esc(g.folio)}</strong>
+          <span>Vigencia: ${vigenciaTxt}</span>
+        </div>
+      </div>
+    </section>
+    <div class="content">
+      <section class="card trip">
+        <div class="cardtitle">INFORMACIÓN DEL VIAJERO</div>
+        <div class="tripgrid">
+          <div><div class="lbl">Viajero</div><div class="val">${esc(g.cliente)}</div></div>
+          <div><div class="lbl">Pasajeros</div><div class="val">${esc(g.pax)||'—'}</div></div>
+          <div><div class="lbl">Salida</div><div class="val">${salidaTxt}</div></div>
+          <div><div class="lbl">Circuito</div><div class="val">${g.dias} día${g.dias>1?'s':''} / ${g.noches} noche${g.noches!==1?'s':''}</div></div>
+          <div class="support">
+            <b>TU TRAVEL PARTNER</b>
+            <div class="val">${esc(g.partner)}</div>
+            ${g.partnerTel?`<a class="wabtn" href="${waLink}" target="_blank">WhatsApp ↗</a>`:''}
+            ${g.linkOnline?`<a class="linkbtn" href="${esc(g.linkOnline)}" target="_blank">${ICONS.link}Ver en línea</a>`:''}
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardtitle">TU CIRCUITO EN UN VISTAZO</div>
+        <div class="factsRow">
+          <div class="factBox"><span class="ico">${ICONS.calendar}</span><b>${g.dias} día${g.dias>1?'s':''} / ${g.noches} noche${g.noches!==1?'s':''}</b><span>Duración total</span></div>
+          <div class="factBox"><span class="ico">${ICONS.pin}</span><b>${rutaNombres.length} ciudad${rutaNombres.length!==1?'es':''}</b><span>${esc(rutaNombres.join(' · '))||'—'}</span></div>
+          <div class="factBox"><span class="ico">${ICONS.traslados}</span><b>${esc(g.tipoTraslado)||'—'}</b><span>Traslados entre ciudades</span></div>
+          <div class="factBox"><span class="ico">${ICONS.guia}</span><b>Guía en ${esc(g.idiomaGuia)||'español'}</b><span>Acompañante todo el circuito</span></div>
+        </div>
+      </section>
+
+      ${activeServices.length?`
+      <section class="card">
+        <div class="cardtitle">TU CIRCUITO INCLUYE</div>
+        <div class="services" style="grid-template-columns:repeat(${activeServices.length},1fr)">${svcIcons}</div>
+        ${g.services.alimentos?`<div class="priceNote" style="text-align:center;margin-top:14px">* El detalle de alimentos incluidos (desayuno, comida y/o cena) se especifica día por día en el itinerario.</div>`:''}
+      </section>`:''}
+
+      ${state.days.length?`
+      <section class="card">
+        <div class="cardtitle">ITINERARIO DÍA POR DÍA</div>
+        <div class="timeline">${daysHTML}</div>
+      </section>`:''}
+
+      ${state.categories.length?`
+      <section class="card">
+        <div class="cardtitle">HOSPEDAJE POR CATEGORÍA</div>
+        <div class="hotelCats" style="grid-template-columns:repeat(${hotelCatsCols},1fr)">${hotelCatsHTML}</div>
+      </section>`:''}
+
+      ${priceTableHTML?`
+      <section class="card">
+        <div class="cardtitle">TARIFAS POR PERSONA (MXN)</div>
+        ${priceTableHTML}
+        <div class="priceNote">Tarifas por persona, según ocupación seleccionada. Precios sujetos a disponibilidad al momento de confirmar.</div>
+      </section>`:''}
+
+      ${(incluyeItems.length||excluyeItems.length)?`
+      <section class="card">
+        <div class="cardtitle">¿QUÉ INCLUYE Y QUÉ NO?</div>
+        <div class="incGrid">
+          <div class="incCol"><h4>Incluye</h4><ul>${incluyeItems.map(i=>`<li class="incYes">${ICONS.check}${esc(i.texto)}</li>`).join('')}</ul></div>
+          <div class="incCol"><h4>No incluye</h4><ul>${excluyeItems.map(i=>`<li class="incNo">${ICONS.cross}${esc(i.texto)}</li>`).join('')}</ul></div>
+        </div>
+      </section>`:''}
+
+      <section class="price">
+        <div>
+          <h2>${desde.min?'DESDE ('+esc(desde.minCat.nombre||'Categoría')+', OCUPACIÓN '+(esc(desde.minOcc.nombre)||'').toUpperCase()+')':'INVERSIÓN POR PERSONA'}</h2>
+          <div class="total">${desde.min?money(desde.min)+' <span style="font-size:15px;font-weight:600;color:#6b5a3f">por persona</span>':'Por confirmar'}</div>
+          <div class="per">${desde.min?'Consulta la tabla completa de tarifas arriba según categoría y ocupación':''}</div>
+        </div>
+        ${partnerDigits
+          ? `<a class="cta" href="${waLink}?text=${encodeURIComponent('Hola '+g.partner+', quiero reservar el circuito '+g.circuito+' — Cotización '+g.folio+'. ¡Me interesa!')}" target="_blank">RESERVAR MI CIRCUITO →</a>`
+          : `<span class="cta">RESERVAR MI CIRCUITO →</span>`}
+      </section>
+
+      <section class="card"><div class="cardtitle">FORMAS DE PAGO</div>
+        <div class="services" style="grid-template-columns:repeat(3,1fr)">
+          <div><span class="ico">${ICONS.tarjeta}</span><b>Tarjeta</b></div>
+          <div><span class="ico">${ICONS.transferencia}</span><b>Transferencia</b></div>
+          <div><span class="ico">${ICONS.facilidades}</span><b>Facilidades</b></div>
+        </div>
+      </section>
+
+      <section class="legal">
+        <div><b>ⓘ INFORMACIÓN IMPORTANTE</b><p>Tarifas por persona, sujetas a disponibilidad y tipo de cambio al momento de confirmar la reserva.</p></div>
+        <div><b>⚙ POLÍTICAS</b><p>Cambios, cancelaciones y reembolsos sujetos a las condiciones de cada proveedor y categoría de hospedaje.</p></div>
+        <div><b>◇ ESTA COTIZACIÓN</b><p>La tarifa no queda garantizada hasta confirmar disponibilidad y realizar el pago correspondiente.</p></div>
+      </section>
+
+      <div class="tagline">"Viajar tranquilo también se planea."</div>
+    </div>
+    <footer class="footer">
+      <div><h2>¡Gracias por permitirnos ser parte de tu próximo viaje!</h2><small>Estamos contigo antes, durante y después de tu viaje.</small></div>
+      <div>
+        <div class="socialIcons">
+          <a href="${SOCIAL_LINKS.web}" target="_blank" aria-label="Sitio web">${ICONS.web}</a>
+          <a href="${SOCIAL_LINKS.instagram}" target="_blank" aria-label="Instagram">${ICONS.instagram}</a>
+          <a href="${SOCIAL_LINKS.facebook}" target="_blank" aria-label="Facebook">${ICONS.facebook}</a>
+          <a href="${SOCIAL_LINKS.tiktok}" target="_blank" aria-label="TikTok">${ICONS.tiktok}</a>
+          <a href="${SOCIAL_LINKS.youtube}" target="_blank" aria-label="YouTube">${ICONS.youtube}</a>
+        </div>
+        <small style="letter-spacing:0">viajescasal.com</small>
+      </div>
+      <div class="reviews"><a href="${SOCIAL_LINKS.gmaps}" target="_blank">Conoce nuestras reseñas<br><span class="gold">★★★★★</span></a></div>
+    </footer>
+  </div>`;
+}
+
+function buildMessage(g){
+  const desde = computeDesde();
+  let msg = `¡Hola${g.cliente!=='Nombre del cliente'?' '+g.cliente:''}! 👋 Soy ${g.partner}, tu Travel Partner en Viajes Casal.\n\n`;
+  msg += `Aquí tienes tu circuito *${g.circuito}* (${g.dias} día${g.dias>1?'s':''} / ${g.noches} noche${g.noches!==1?'s':''})`;
+  const rutaNombres = state.ruta.map(r=>r.nombre).filter(Boolean);
+  if(rutaNombres.length) msg += `: ${rutaNombres.join(' → ')}`;
+  msg += `\n\n`;
+  if(desde.min){
+    msg += `💰 Desde ${money(desde.min)} por persona (${desde.minCat.nombre||'categoría'}, ocupación ${(desde.minOcc.nombre||'').toLowerCase()})\n`;
+    msg += `Consulta el PDF para ver todas las categorías y ocupaciones disponibles.\n\n`;
+  }
+  msg += `El circuito incluye ${SERVICES.filter(s=>g.services[s.key]).map(s=>s.label.toLowerCase()).join(', ')}, con mi acompañamiento antes, durante y después de tu viaje.\n\n`;
+  msg += `Te comparto también el PDF con el itinerario completo día por día 📄\n`;
+  if(g.linkOnline) msg += `También puedes verlo en línea aquí: ${g.linkOnline}\n`;
+  msg += `\nCualquier duda aquí estoy. Viajar tranquilo también se planea. ✈️🌊\n`;
+  msg += `— ${g.partner} · Viajes Casal`;
+  return msg;
+}
+
+function generate(){
+  const g = collectGlobal();
+  document.getElementById('sheetContainer').innerHTML = sheetHTML(g);
+  document.getElementById('msgText').value = buildMessage(g);
+  document.getElementById('btnPreview').disabled = false;
+  showView('preview');
+}
+
+function showView(view){
+  document.getElementById('formView').hidden = view!=='form';
+  document.getElementById('previewView').hidden = view!=='preview';
+}
+function copyMessage(){
+  const t = document.getElementById('msgText');
+  t.select();
+  navigator.clipboard.writeText(t.value).then(()=>{
+    alert('Mensaje copiado. Ya puedes pegarlo en WhatsApp o correo.');
+  }).catch(()=>{
+    document.execCommand('copy');
+    alert('Mensaje copiado.');
+  });
+}
+
+/* ---------- Init ---------- */
+renderServicesRow();
+addCiudad(); addCiudad();
+addDay();
+addCategory();
+addOccupancy(); addOccupancy(); addOccupancy(); addOccupancy();
+document.getElementById('occupanciesContainer'); // ensure exists before naming defaults
+state.occupancies[0].nombre='Sencilla';
+state.occupancies[1].nombre='Doble';
+state.occupancies[2].nombre='Triple';
+state.occupancies[3].nombre='Cuádruple';
+renderOccupancies();
+renderPriceInputs();
+addIncluye(); addIncluye();
+addExcluye(); addExcluye();
+updateDurationHint();
+</script>
+</body>
+</html>
