@@ -194,6 +194,10 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--turq);outline-of
 .partnerBenefits li{font-size:12.5px;line-height:1.5;margin-bottom:7px;padding-left:22px;position:relative;color:var(--ink)}
 .partnerBenefits li:before{content:'✓';position:absolute;left:0;color:var(--turq);font-weight:800}
 
+.partnerText .partnerLinks{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+.partnerText .partnerLinks .linkbtn{margin:0}
+.partnerText .blogHint{font-size:12.5px;color:var(--turq);font-weight:700;margin:2px 0 12px}
+
 @media(max-width:900px){
   .grid,.grid.g2,.grid.g4{grid-template-columns:1fr 1fr}
   .tripgrid{grid-template-columns:1fr 1fr}
@@ -368,7 +372,8 @@ const ICONS = {
   cross: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>`,
   calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>`,
   pin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>`,
-  partner: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="4" height="6" rx="1.5"/><rect x="18" y="13" width="4" height="6" rx="1.5"/><path d="M20 19v1a3 3 0 0 1-3 3h-3"/></svg>`
+  partner: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="4" height="6" rx="1.5"/><rect x="18" y="13" width="4" height="6" rx="1.5"/><path d="M20 19v1a3 3 0 0 1-3 3h-3"/></svg>`,
+  blog: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5V4.5Z"/><path d="M4 19a2.5 2.5 0 0 1 2.5-2.5H20"/><path d="M8 7h8M8 10.5h8"/></svg>`
 };
 const SOCIAL_LINKS = {
   web: 'https://viajescasal.com',
@@ -840,7 +845,11 @@ function sheetHTML(g){
               <li>Acompañamiento antes, durante y después de tu viaje.</li>
               <li>Conocimiento directo de destinos y proveedores, para recomendarte lo que de verdad te conviene.</li>
             </ul>
-            <a class="linkbtn" href="https://paulina.viajescasal.com" target="_blank">${ICONS.web}Conoce más de mí</a>
+            <p class="blogHint iconLabel">${ICONS.blog}En nuestro blog de viajes encontrarás guías útiles para planear tu próximo destino.</p>
+            <div class="partnerLinks">
+              <a class="linkbtn" href="https://paulina.viajescasal.com" target="_blank">${ICONS.web}Conoce más de mí</a>
+              <a class="linkbtn" href="https://paulina.viajescasal.com/blog/index.html" target="_blank">${ICONS.blog}Guías de viaje</a>
+            </div>
           </div>
         </div>
       </section>
